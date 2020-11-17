@@ -1,0 +1,216 @@
+type: edu
+custom_name: stage5
+files:
+- name: src/encryptdecrypt/Main.java
+  visible: true
+  text: |
+    package encryptdecrypt;
+
+    public class Main {
+        public static void main(String[] args) {
+            System.out.println("Hello World!");
+        }
+    }
+  learner_created: false
+- name: test/EncryptDecryptTest.java
+  visible: false
+  text: |
+    import encryptdecrypt.Main;
+    import org.hyperskill.hstest.common.FileUtils;
+    import org.hyperskill.hstest.stage.StageTest;
+    import org.hyperskill.hstest.testcase.CheckResult;
+    import org.hyperskill.hstest.testcase.TestCase;
+
+    import java.io.IOException;
+    import java.nio.charset.StandardCharsets;
+    import java.nio.file.Files;
+    import java.nio.file.NoSuchFileException;
+    import java.nio.file.Path;
+    import java.nio.file.Paths;
+    import java.util.List;
+
+    public class EncryptDecryptTest extends StageTest<String> {
+        public EncryptDecryptTest() {
+            super(Main.class);
+        }
+
+        @Override
+        public List<TestCase<String>> generate() {
+            return List.of(
+                new TestCase<String>()
+                    .addArguments(
+                        "-mode", "enc",
+                        "-key", "5",
+                        "-in", "in.txt",
+                        "-out", "output.txt"
+                    )
+                    .setAttach("\\jqhtrj%yt%m~ujwxpnqq&")
+                    .addFile("in.txt", "Welcome to hyperskill!"),
+
+                new TestCase<String>()
+                    .addArguments(
+                        "-key", "0",
+                        "-mode", "enc",
+                        "-in", "input.txt",
+                        "-out", "output.txt"
+                    )
+                    .setAttach("Hello")
+                    .addFile("input.txt", "Hello"),
+
+                new TestCase<String>()
+                    .addArguments(
+                        "-key", "1",
+                        "-in", "i.txt",
+                        "-out", "output.txt",
+                        "-mode", "enc"
+                    )
+                    .setAttach("123456789")
+                    .addFile("i.txt", "012345678"),
+
+                new TestCase<String>()
+                    .addArguments(
+                        "-mode", "dec",
+                        "-in", "input.txt",
+                        "-out", "output.txt",
+                        "-key", "5"
+                    )
+                    .setAttach("Welcome to hyperskill!")
+                    .addFile("input.txt", "\\jqhtrj%yt%m~ujwxpnqq&"),
+
+                new TestCase<String>()
+                    .addArguments(
+                        "-mode", "dec",
+                        "-key", "0",
+                        "-in", "input.txt",
+                        "-out", "output.txt"
+                    )
+                    .setAttach("Hi")
+                    .addFile("input.txt", "Hi"),
+
+                new TestCase<String>()
+                    .addArguments(
+                        "-mode", "dec",
+                        "-key", "1",
+                        "-in", "input.txt",
+                        "-out", "output.txt"
+                    )
+                    .setAttach("111122223333")
+                    .addFile("input.txt", "222233334444")
+            );
+        }
+
+        @Override
+        public CheckResult check(String reply, String clue) {
+            String fileName = "output.txt";
+            String output;
+
+            try {
+                Path path = Paths.get(FileUtils.CURRENT_DIR + fileName);
+                output = Files.readString(path, StandardCharsets.UTF_8);
+            } catch (NoSuchFileException e) {
+                return new CheckResult(false, "File output.txt not found!");
+            } catch (IOException e) {
+                return new CheckResult(false, "Cannot read from file!");
+            }
+
+            if (!output.trim().equals(clue.trim())) {
+                return new CheckResult(false, "Wrong result in the file!");
+            }
+
+            return new CheckResult(true);
+        }
+    }
+  learner_created: false
+- name: src/encryptdecrypt/ParserOfArgs.java
+  visible: true
+  text: |
+    package encryptdecrypt;
+
+    public class ParserOfArgs {
+
+        public String[] args;
+
+        public ParserOfArgs(String[] args) {
+            this.args = args;
+        }
+
+        public String mode() {
+            for (int i = 0; i < args.length; i++) {
+                if ("-mode".equals(args[i])) {
+                    return args[i + 1];
+                }
+            }
+            return "enc";
+        }
+
+        public String text() {
+            for (int i = 0; i < args.length; i++) {
+                if ("-data".equals(args[i])) {
+                    return args[i + 1];
+                }
+            }
+            return "";
+        }
+
+        public int key() {
+            for (int i = 0; i < args.length; i++) {
+                if ("-key".equals(args[i])) {
+                    return Integer.parseInt(args[i + 1]);
+                }
+            }
+            return 0;
+        }
+    }
+  learner_created: true
+- name: src/encryptdecrypt/Decoder.java
+  visible: true
+  text: |
+    package encryptdecrypt;
+
+    public class Decoder {
+
+        public char decipherOneSimbol(char simbol, int key) {
+            return (char) (simbol - key);
+        }
+
+        public String decipherWholeString(String text, int key) {
+            char[] array = text.toCharArray();
+            for (int i = 0; i < array.length; i ++) {
+                array[i] = decipherOneSimbol(array[i], key);
+            }
+            return new String(array);
+        }
+
+    }
+  learner_created: true
+- name: src/encryptdecrypt/Encoder.java
+  visible: true
+  text: |
+    package encryptdecrypt;
+
+    public class Encoder {
+
+        public char cipherOneSimbol(char simbol, int key) {
+            return (char) (simbol + key);
+        }
+
+        public String cipherWholeString(String text, int key) {
+            char[] array = text.toCharArray();
+            for (int i = 0; i < array.length; i ++) {
+                array[i] = cipherOneSimbol(array[i], key);
+            }
+            return new String(array);
+        }
+
+    }
+  learner_created: true
+- name: output.txt
+  visible: true
+  learner_created: true
+feedback_link: https://hyperskill.org/projects/46/stages/249/implement
+status: Solved
+feedback:
+  message: Congratulations! Continue on <a href="https://hyperskill.org/projects/46/stages/249/implement">JetBrains
+    Academy</a>
+  time: Tue, 22 Sep 2020 11:47:30 UTC
+record: 5
